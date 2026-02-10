@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Celebration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-bg: #ffe4e9;
+            --soft-white: #ffffff;
+            --text-grey: #4a4a4a;
+            --btn-green: #4dbb7e;
+            --btn-red: #e94d4d;
+            --accent-pink: #ff6b81;
+        }
+
+        body {
+            background-color: var(--pink-bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Background Effects */
+        .heart-particle {
+            position: fixed;
+            top: -10vh;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear forwards;
+        }
+
+        .firework {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .card {
+            background: var(--soft-white);
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Stickers Restored */
+        .sticker { position: absolute; width: 65px; z-index: 21; pointer-events: none; }
+        .s1 { top: -30px; left: -20px; width: 90px; }
+        .s2 { top: -20px; right: -10px; width: 80px; }
+        .s3 { bottom: 20px; left: -30px; width: 100px; }
+        .s4 { bottom: -20px; right: -20px; width: 90px; }
+        .s5 { top: 120px; left: -40px; }
+        .s6 { top: 150px; right: -35px; }
+
+        .title { font-family: 'Pacifico', cursive; color: var(--accent-pink); font-size: 2.2rem; margin-bottom: 10px; }
+        .main-gif { width: 160px; margin: 0 auto; display: block; border-radius: 20px; }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            min-height: 120px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+        }
+
+        #btnYes { background-color: var(--btn-green); font-size: 1.2rem; }
+        #btnNo { background-color: var(--btn-red); font-size: 1.2rem; }
+        
+        /* Riddle Styles */
+        #game-screen { display: none; }
+        .riddle-text { font-size: 1.1rem; color: var(--text-grey); margin: 20px 0; line-height: 1.5; font-style: italic; white-space: pre-wrap; }
+        #answerInput { 
+            padding: 12px; width: 80%; border-radius: 10px; border: 2px solid var(--pink-bg); 
+            margin-bottom: 10px; outline: none; text-align: center; font-family: 'Fredoka';
+        }
+        #feedback { color: var(--btn-red); font-weight: bold; height: 20px; margin-bottom: 10px; font-size: 0.9rem; }
+        .progress { font-size: 0.8rem; color: #aaa; margin-top: 10px; }
+
+        /* Screen 2 Styles */
+        #screen2 { display: none; }
+        .photo-grid { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .photo-box {
+            width: 140px; height: 180px; background: #fff; border-radius: 12px;
+            overflow: hidden; border: 3px solid white; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 30;
+        }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        #popup {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: white;
+            padding: 20px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 200; width: 85%;
+        }
+        .close-btn { color: var(--accent-pink); cursor: pointer; font-weight: bold; margin-top: 10px; display: block;}
+
+        #click-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5; display: none; }
+    </style>
+</head>
+<body onclick="handleBodyClick()">
+
+    <div id="click-layer"></div>
+
+    <div class="card" id="screen1">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjNsaWFhZ2QydXpmNG01bmZzMm5mN3VnMmtxY3h0MXVtZWtpeXNwYSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/CjrB9Mo0o4DNC/giphy.gif" class="sticker s1">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjNsaWFhZ2QydXpmNG01bmZzMm5mN3VnMmtxY3h0MXVtZWtpeXNwYSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/016jMX4UhzUioJ6bxX/giphy.gif" class="sticker s2">
+        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdpZWpneXdqejV5dDUyN2c3cTRiYmxpcDRkZXAzcHAyYmIzNDRpNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/fvN5KrNcKKUyX7hNIA/giphy.gif" class="sticker s3">
+        <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NTdoaHNpYmYyMDFtNHJsODVla283MWFub3N3OGhlbHFkbXF5ZHNnMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/ZwnSKQpccu7cRa3tIR/giphy.gif" class="sticker s4">
+        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMW10amE3dDl2eDYwMjN6ZmN6ejdibmdtYW43NG1iejRqcmNlOGpxbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/ic1ZwwBJleuBi/giphy.gif" class="sticker s5">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc3k3Y3B5NWl2dmR4YzkwM3o2Zmh3Y3BrcTdubDNoeDN3bXBicGlkdSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/KxDqcD2mAEuOFMMu1g/giphy.gif" class="sticker s6">
+
+        <h1 class="title">Hi Crushy😍!</h1>
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDQ4OWtuYjN6djNxcXZqaHJ1ejJrNGdoNm01djU0aml6ZGFwZzdtYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1JmGiBtqTuehfYxuy9/giphy.gif" class="main-gif">
+        <p class="question">Will you be my Valentine?😛</p>
+        <div class="btn-container">
+            <button id="btnYes" onclick="startRiddles(event)">Yes</button>
+            <button id="btnNo" onclick="chase(event)">No</button>
+        </div>
+    </div>
+
+    <div class="card" id="game-screen">
+        <h2 class="title" style="font-size: 1.5rem;">Prove your Love!</h2>
+        <p id="riddleDisplay" class="riddle-text"></p>
+        <div id="feedback"></div>
+        <input type="text" id="answerInput" placeholder="Type answer here..." autocomplete="off">
+        <br>
+        <button id="btnYes" onclick="checkAnswer()" style="margin-top: 10px;">Submit Answer</button>
+        <p class="progress" id="progressText">Question 1 of 5</p>
+    </div>
+
+    <div class="card" id="screen2">
+        <h1 class="title">Thank You Crushy!💘 Crush Back Na?🙃</h1>
+        <div class="photo-grid">
+            <div class="photo-box" onclick="openNote(event)"><img src="image.png" alt="Photo 1"></div>
+            <div class="photo-box" onclick="openCat(event)"><img src="image2.png" alt="Photo 2"></div>
+        </div>
+        <p style="font-size: 0.9rem; color: #ff6b81; position: relative; z-index: 31;">(Tap photos for a surprise!)</p>
+        <button style="background: #ffb6c1; margin-top: 20px;" onclick="resetGame(event)">← Back</button>
+        <div id="popup">
+            <div id="popup-content"></div>
+            <span class="close-btn" onclick="closePopup(event)">Close</span>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="Nahanap Kita - Amiel Sol.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let yesScale = 1;
+        const music = document.getElementById('bgMusic');
+        let celebrationStarted = false;
+        
+        const riddles = [
+            { q: "I melt when it’s warm,\nI’m sweet when I’m shared,\nOn Valentine’s Day,\nI show that you cared.\nWhat am I?", a: "chocolate" },
+            { q: "I have no wings,\nyet I make hearts fly,\nI’m small and chubby,\nwith arrows nearby.\nWho am I?", a: "cupid" },
+            { q: "I’m said, I’m written,\nI’m felt inside,\nOn Valentine’s Day,\nI can’t be denied.\nWhat am I?", a: "love" },
+            { q: "I linger in glances that never stay long,\nA question unasked hiding deep in a song.\nIf silence could speak, it would plead, not attack—\nI move only forward, I don’t look back.\nI exist only if courage comes through…\nSay it once plainly—what must you do?", a: "crush me back" },
+            { q: "No crown on my head, yet I rule in your thought,\nNo chain on your wrist, yet you’re quietly caught.\nI exist when two hearts are equally meant.\nSay it with certainty, no blush, no rush—\nFinish the claim that begins with a crush.", a: "you're mine crush" }
+        ];
+        let currentRiddleIndex = 0;
+
+        function startRiddles(e) {
+            e.stopPropagation();
+            document.getElementById('screen1').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            showNextRiddle();
+        }
+
+        function showNextRiddle() {
+            document.getElementById('riddleDisplay').innerText = riddles[currentRiddleIndex].q;
+            document.getElementById('progressText').innerText = `Question ${currentRiddleIndex + 1} of 5`;
+            document.getElementById('answerInput').value = "";
+            document.getElementById('feedback').innerText = "";
+        }
+
+        function checkAnswer() {
+            const userAns = document.getElementById('answerInput').value.toLowerCase().trim();
+            const correctAns = riddles[currentRiddleIndex].a.toLowerCase();
+
+            const cleanUser = userAns.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            const cleanCorrect = correctAns.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+
+            if (cleanUser === cleanCorrect) {
+                currentRiddleIndex++;
+                if (currentRiddleIndex >= riddles.length) {
+                    accept();
+                } else {
+                    showNextRiddle();
+                }
+            } else {
+                document.getElementById('feedback').innerText = "Wrong Answer Crush!";
+            }
+        }
+
+        document.getElementById('answerInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        function chase(e) {
+            e.stopPropagation();
+            yesScale += 0.5;
+            document.getElementById('btnYes').style.transform = `scale(${yesScale})`;
+            const no = document.getElementById('btnNo');
+            no.style.position = 'fixed';
+            no.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+            no.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+        }
+
+        function accept() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('screen2').style.display = 'block';
+            document.getElementById('click-layer').style.display = 'block';
+            celebrationStarted = true;
+            setInterval(createFirework, 400);
+            music.play().catch(error => console.log("Audio play failed:", error));
+        }
+
+        function resetGame(e) {
+            e.stopPropagation();
+            location.reload();
+        }
+
+        function handleBodyClick() {
+            if (celebrationStarted && document.getElementById('popup').style.display !== 'block') {
+                if (music.paused) music.play();
+                else music.pause();
+            }
+        }
+
+        function openNote(e) {
+            e.stopPropagation();
+            const pop = document.getElementById('popup');
+            document.getElementById('popup-content').innerHTML = "<p><b>A Special Note:</b><br>On this Valentine’s Day, I hold our memories gently, like petals that still remember how to bloom. Even if we’re just echoes now, they remain the softest part of my heart.!💝🫶</p>";
+            pop.style.display = 'block';
+        }
+        function openCat(e) {
+            e.stopPropagation();
+            const pop = document.getElementById('popup');
+            document.getElementById('popup-content').innerHTML = `<img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OGtpZDgzdnhuamJlYjB1c2h6OXhlemEzYWVkN3VuNzlycWx5ZHlwYiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/dLIqrLqRLpAnaWQnCh/giphy.gif" width="100%">`;
+            pop.style.display = 'block';
+        }
+
+        function closePopup(e) { 
+            if(e) e.stopPropagation();
+            document.getElementById('popup').style.display = 'none'; 
+        }
+
+        function createRainyHeart() {
+            const h = document.createElement('div');
+            h.classList.add('heart-particle');
+            h.innerHTML = ['❤️', '💖', '💗', '💕'][Math.floor(Math.random()*4)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.fontSize = Math.random() * 20 + 15 + 'px';
+            h.style.animationDuration = Math.random() * 3 + 2 + 's';
+            h.style.opacity = Math.random();
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 5000);
+        }
+        setInterval(createRainyHeart, 300);
+
+        function createFirework() {
+            if(!celebrationStarted) return;
+            const f = document.createElement('div');
+            f.classList.add('firework');
+            f.innerHTML = '💝';
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.top = Math.random() * 100 + 'vh';
+            f.style.fontSize = '40px';
+            document.body.appendChild(f);
+            setTimeout(() => f.remove(), 1000);
+        }
+    </script>
+</body>
+</html>
